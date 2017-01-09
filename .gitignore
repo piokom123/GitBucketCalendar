@@ -1,4 +1,6 @@
 nbproject
 vendor
 src/example.php
+src/cron.php
+src/config.php
 composer.lock

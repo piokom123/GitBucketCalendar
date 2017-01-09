@@ -6,9 +6,23 @@ use GitBucketCalendar\Repositories\GitHub;
 
 class GitBucketCalendar {
     private $config;
+    private $memcached;
+    private $memcachedKey = 'gitbucket_contributions';
 
     public function __construct($config) {
         $this->config = $config;
+
+        $this->verifyConfig();
+
+        $this->memcached = new \Memcached();
+
+        $this->memcached->addServer($this->config['memcached_host'], $this->config['memcached_port']);
+    }
+
+    public function refreshContributionsCache() {
+        $contributions = $this->getContributions();
+
+        $this->memcached->set($this->memcachedKey, $contributions);
     }
 
     public function getContributions() {
@@ -43,7 +57,13 @@ class GitBucketCalendar {
     }
 
     public function printContributionsCalendar() {
-        $contributions = $this->getContributions();
+        $contributions = $this->memcached->get($this->memcachedKey);
+
+        if ($contributions === false) {
+            echo "No contributions data";
+
+            return;
+        }
 
         $maxValue = 0;
 
@@ -61,5 +81,16 @@ class GitBucketCalendar {
         ];
 
         require __DIR__ . '/Templates/calendar.php';
+    }
+
+    private function verifyConfig() {
+        if (!isset($this->config['bitbucket_key'])
+                || !isset($this->config['bitbucket_secret'])
+                || !isset($this->config['bitbucket_commit_usernames'])
+                || !isset($this->config['github_account_username'])
+                || !isset($this->config['memcached_host'])
+                || !isset($this->config['memcached_port'])) {
+            throw new \RuntimeException('Incorrect configuration');
+        }
     }
 }
