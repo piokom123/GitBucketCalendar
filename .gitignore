@@ -1,3 +1,4 @@
 nbproject
 vendor
 src/example.php
+composer.lock
