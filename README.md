@@ -40,3 +40,5 @@ $repo->printContributionsCalendar();
 
 `bitbucket_commit_usernames` contains array with all usernames used for commits that should be counted in.
 `github_account_username` is GitHub usernames (exacly like used in profile URL).
+
+![GitBucket](/examples/gitbucket.png?raw=true)
