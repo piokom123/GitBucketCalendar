@@ -16,6 +16,8 @@ Code is available in Packagist repository so installation is as simple as includ
 }
 ```
 
+After that you have to run (and preferably add to your crontab) script from `./examples/cron.php` to fetch data.
+
 
 Examples
 ========================
@@ -28,7 +30,9 @@ $repo = new GitBucketCalendar\GitBucketCalendar([
     'bitbucket_commit_usernames' => [
         ''
     ],
-    'github_account_username' => ''
+    'github_account_username' => '',
+    'memcached_host' => 'localhost',
+    'memcached_port' => 11211
 ]);
 
 $repo->printContributionsCalendar();

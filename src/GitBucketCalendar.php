@@ -53,7 +53,90 @@ class GitBucketCalendar {
             }
         }
 
-        return $contributions;
+        krsort($contributions);
+
+        $longestStreak = 0;
+        $longestStreakStart = '';
+        $longestStreakEnd = '';
+        $latestStreak = 0;
+        $latestStreakEnded = false;
+        $latestStreakStart = '';
+        $latestStreakEnd = '';
+        $currentStreak = 0;
+        $currentStreakEnd = '';
+        $count = 0;
+        $previousKey = null;
+        $maxValue = 0;
+
+        foreach ($contributions as $loopKey => $loopItem) {
+            if ($previousKey === null) {
+                $previousKey = $loopKey;
+            }
+
+            if (!$latestStreakEnded) {
+                if ($loopItem === 0) {
+                    $latestStreakEnded = true;
+
+                    $latestStreakStart = $previousKey;
+                } else {
+                    if ($latestStreak === 0) {
+                        $latestStreakEnd = $loopKey;
+                    }
+
+                    $latestStreak++;
+                }
+            }
+
+            if ($loopItem === 0) {
+                if ($currentStreak > $longestStreak) {
+                    $longestStreak = $currentStreak;
+
+                    $longestStreakEnd = $currentStreakEnd;
+                    $longestStreakStart = $previousKey;
+                }
+
+                $currentStreak = 0;
+            } else {
+                if ($currentStreak === 0) {
+                    $currentStreakEnd = $loopKey;
+                }
+
+                $currentStreak++;
+            }
+
+            $count += $loopItem;
+            $previousKey = $loopKey;
+
+            if ($loopItem > $maxValue) {
+                $maxValue = $loopItem;
+            }
+        }
+
+        if ($currentStreak > $longestStreak) {
+            $longestStreak = $currentStreak;
+        }
+
+        ksort($contributions);
+
+        $result = [
+            'contributions' => $contributions,
+            'latestStreak' => $latestStreak,
+            'latestStreakStart' => $latestStreakStart,
+            'latestStreakEnd' => $latestStreakEnd,
+            'longestStreak' => $longestStreak,
+            'longestStreakStart' => $longestStreakStart,
+            'longestStreakEnd' => $longestStreakEnd,
+            'contributionsSum' => $count,
+            'maxValue' => $maxValue,
+            'steps' => [
+                round($maxValue * 0.75) => '#1e6823',
+                round($maxValue * 0.5) => '#44a340',
+                round($maxValue * 0.25) => '#8cc665',
+                1 => '#d6e685'
+            ]
+        ];
+
+        return $result;
     }
 
     public function printContributionsCalendar() {
@@ -64,21 +147,6 @@ class GitBucketCalendar {
 
             return;
         }
-
-        $maxValue = 0;
-
-        foreach ($contributions as $loopItem) {
-            if ($loopItem > $maxValue) {
-                $maxValue = $loopItem;
-            }
-        }
-
-        $steps = [
-            round($maxValue * 0.75) => '#1e6823',
-            round($maxValue * 0.5) => '#44a340',
-            round($maxValue * 0.25) => '#8cc665',
-            1 => '#d6e685'
-        ];
 
         require __DIR__ . '/Templates/calendar.php';
     }
