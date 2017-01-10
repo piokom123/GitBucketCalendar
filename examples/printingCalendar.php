@@ -9,6 +9,6 @@ if (file_exists($composerAutoload)) {
 require_once __DIR__ . '/config.php';
 
 
-$repo = new GitBucketCalendar\GitBucketCalendar($config);
+$repo = new GitBucketCalendar\GitBucketCalendar($config, new GitBucketCalendar\Repositories\RepositoriesFactory());
 
 $repo->printContributionsCalendar();

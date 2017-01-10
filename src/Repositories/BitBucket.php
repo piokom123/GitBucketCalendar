@@ -1,56 +1,40 @@
 <?php
 namespace GitBucketCalendar\Repositories;
 
-use Bitbucket\API\Api;
-use Bitbucket\API\Http\Listener\OAuthListener;
+use GitBucketCalendar\Repositories\Fetchers\BitBucketFetcher;
 
 class BitBucket extends AbstractRepository {
-    private $api;
-    private $config = [];
+    private $fetcher;
     private $commitUsernames;
     private $accountUsername;
 
-    public function configure($config) {
-        $this->api = new Api();
+    public function __construct(array $config, $fetcher) {
+        if (!$fetcher instanceof BitBucketFetcher) {
+            throw new \RuntimeException('BitBucket requires fetcher to be instace of GitBucketCalendar\Repositories\Fetchers\BitBucketFetcher');
+        }
 
-        $this->config = [
-            'oauth_consumer_key' => $config['bitbucket_key'],
-            'oauth_consumer_secret' => $config['bitbucket_secret']
-        ];
+        $this->fetcher = $fetcher;
 
         $this->commitUsernames = $config['bitbucket_commit_usernames'];
-
-        $this->api->getClient()->addListener(
-            new OAuthListener($this->config)
-        );
-
-        $this->api->getClient()->setApiVersion('2.0');
-
-        $this->getAccountUsername();
     }
 
     public function getContributions($afterTimestamp) {
+        $this->getAccountUsername();
+
         if ($afterTimestamp === null) {
             throw new \RuntimeException('Data from GitHub have to be fetched first!');
         }
 
-        $this->api->getClient()->setApiVersion('1.0');
+        $repositoriesResponse = $this->fetcher->getRepositories();
 
-        $repositoriesResponse = $this->api->api('User\\Repositories')->get();
-
-        $this->api->getClient()->setApiVersion('2.0');
-
-        $repositories = json_decode($repositoriesResponse->getContent());
-
-        $commitsAPI = $this->api->api('Repositories\\Commits');
-        $issuesAPI = $this->api->api('Repositories\\Issues');
+        $repositories = json_decode($repositoriesResponse);
 
         $found = [];
 
         foreach ($repositories as $loopItem) {
-            $found = $this->getCommits($commitsAPI, $found, $loopItem, $afterTimestamp);
+            $found = $this->getCommits($found, $loopItem, $afterTimestamp);
 
-            $found = $this->getIssues($issuesAPI, $found, $loopItem, $afterTimestamp);
+            $found = $this->getIssues( $found, $loopItem, $afterTimestamp);
         }
 
         ksort($found);
@@ -59,20 +43,17 @@ class BitBucket extends AbstractRepository {
     }
 
     private function getAccountUsername() {
-        $userResponse = $this->api->api('User')->get();
+        $userResponse = $this->fetcher->getUser();
 
-        $userJSON = json_decode($userResponse->getContent());
+        $userJSON = json_decode($userResponse);
 
         $this->accountUsername = $userJSON->username;
     }
 
-    private function getCommits($commitsAPI, $found, $repository, $afterTimestamp) {
-        $items = $commitsAPI->all($repository->owner, $repository->slug, [
-            'branch' => 'master',
-            'pagelen' => 100
-        ]);
+    private function getCommits($found, $repository, $afterTimestamp) {
+        $items = $this->fetcher->getCommits($repository->owner, $repository->slug);
 
-        $itemsJSON = json_decode($items->getContent());
+        $itemsJSON = json_decode($items);
 
         if (!isset($itemsJSON->values)) {
             return $found;
@@ -99,13 +80,10 @@ class BitBucket extends AbstractRepository {
         return $found;
     }
 
-    private function getIssues($issuesAPI, $found, $repository, $afterTimestamp) {
-        $items = $issuesAPI->all($repository->owner, $repository->slug, [
-            'pagelen' => 100,
-            'q' => 'created_on >= ' . date('Y-m-d', $afterTimestamp)
-        ]);
+    private function getIssues($found, $repository, $afterTimestamp) {
+        $items = $this->fetcher->getIssues($repository->owner, $repository->slug, $afterTimestamp);
 
-        $itemsJSON = json_decode($items->getContent());
+        $itemsJSON = json_decode($items);
 
         if (!isset($itemsJSON->values)) {
             return $found;

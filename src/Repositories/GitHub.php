@@ -1,15 +1,21 @@
 <?php
 namespace GitBucketCalendar\Repositories;
 
-class GitHub extends AbstractRepository {
-    private $accountUsername;
+use GitBucketCalendar\Repositories\Fetchers\GitHubFetcher;
 
-    public function configure($config) {
-        $this->accountUsername = $config['github_account_username'];
+class GitHub extends AbstractRepository {
+    private $fetcher;
+
+    public function __construct(array $config, $fetcher) {
+        if (!$fetcher instanceof GitHubFetcher) {
+            throw new \RuntimeException('GitHub requires fetcher to be instace of GitBucketCalendar\Repositories\Fetchers\GitHubFetcher');
+        }
+
+        $this->fetcher = $fetcher;
     }
 
     public function getContributions($afterTimestamp) {
-        $content = $this->performRequest('https://github.com/users/' . $this->accountUsername . '/contributions');
+        $content = $this->fetcher->getCalendar();
 
         $parsed = simplexml_load_string($content);
 

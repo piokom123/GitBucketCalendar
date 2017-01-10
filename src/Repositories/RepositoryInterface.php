@@ -2,7 +2,7 @@
 namespace GitBucketCalendar\Repositories;
 
 interface RepositoryInterface {
-    public function configure($config);
+    public function __construct(array $config, $fetcher);
 
     public function getContributions($afterTimestamp);
 }

@@ -1,0 +1,47 @@
+{  
+   "pagelen":100,
+   "values":[  
+      {  
+         "priority":"major",
+         "kind":"bug",
+         "repository":{  
+            "links":{
+            },
+            "type":"repository",
+            "name":"testRepository2",
+            "full_name":"testUsername2/testRepository2",
+            "uuid":"{XXX}"
+         },
+         "links":{
+         },
+         "reporter":{  
+            "username":"hws",
+            "display_name":"High-quality Web Solutions",
+            "type":"user",
+            "uuid":"{XXX}",
+            "links":{
+            }
+         },
+         "title":"title",
+         "component":null,
+         "votes":0,
+         "watches":1,
+         "content":{  
+            "raw":"",
+            "markup":"markdown",
+            "html":""
+         },
+         "assignee":null,
+         "state":"new",
+         "version":null,
+         "edited_on":null,
+         "created_on":"2017-01-09T14:17:26.962532+00:00",
+         "milestone":null,
+         "updated_on":"2017-01-09T14:17:26.962532+00:00",
+         "type":"issue",
+         "id":1
+      }
+   ],
+   "page":1,
+   "size":1
+}

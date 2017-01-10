@@ -1,12 +1,15 @@
 {
-   "name": "hws/gitbucketcalendar",
-   "license": "GPL-3.0+",
-   "autoload": {
-      "psr-4": {
-         "GitBucketCalendar\\": "src/"
-      }
-   },
-   "require": {
-       "gentle/bitbucket-api": "0.8.*"
-   }
+    "name": "hws/gitbucketcalendar",
+    "license": "GPL-3.0+",
+    "autoload": {
+        "psr-4": {
+            "GitBucketCalendar\\": "src/"
+        }
+    },
+    "require": {
+        "gentle/bitbucket-api": "0.8.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "5.7.*"
+    }
 }

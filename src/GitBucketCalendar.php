@@ -1,22 +1,21 @@
 <?php
 namespace GitBucketCalendar;
 
-use GitBucketCalendar\Repositories\BitBucket;
-use GitBucketCalendar\Repositories\GitHub;
+use GitBucketCalendar\Repositories\RepositoriesFactory;
 
 class GitBucketCalendar {
-    private $config;
+    private $repositories;
     private $memcached;
     private $memcachedKey = 'gitbucket_contributions';
 
-    public function __construct($config) {
-        $this->config = $config;
+    public function __construct(array $config, RepositoriesFactory $factory) {
+        $this->verifyConfig($config);
 
-        $this->verifyConfig();
+        $this->repositories = $factory->build($config);
 
         $this->memcached = new \Memcached();
 
-        $this->memcached->addServer($this->config['memcached_host'], $this->config['memcached_port']);
+        $this->memcached->addServer($config['memcached_host'], $config['memcached_port']);
     }
 
     public function refreshContributionsCache() {
@@ -26,18 +25,11 @@ class GitBucketCalendar {
     }
 
     public function getContributions() {
-        $repositories = [
-            new GitHub(),
-            new BitBucket()
-        ];
-
         $contributions = [];
 
         $startingTimestamp = null;
 
-        foreach ($repositories as $loopItem) {
-            $loopItem->configure($this->config);
-
+        foreach ($this->repositories as $loopItem) {
             $repositoryContributions = $loopItem->getContributions($startingTimestamp);
 
             foreach ($repositoryContributions as $subLoopKey => $subLoopItem) {
@@ -78,6 +70,10 @@ class GitBucketCalendar {
                     $latestStreakEnded = true;
 
                     $latestStreakStart = $previousKey;
+
+                    if (empty($latestStreakEnd)) {
+                        $latestStreakEnd = $loopKey;
+                    }
                 } else {
                     if ($latestStreak === 0) {
                         $latestStreakEnd = $loopKey;
@@ -151,13 +147,13 @@ class GitBucketCalendar {
         require __DIR__ . '/Templates/calendar.php';
     }
 
-    private function verifyConfig() {
-        if (!isset($this->config['bitbucket_key'])
-                || !isset($this->config['bitbucket_secret'])
-                || !isset($this->config['bitbucket_commit_usernames'])
-                || !isset($this->config['github_account_username'])
-                || !isset($this->config['memcached_host'])
-                || !isset($this->config['memcached_port'])) {
+    private function verifyConfig($config) {
+        if (!isset($config['bitbucket_key'])
+                || !isset($config['bitbucket_secret'])
+                || !isset($config['bitbucket_commit_usernames'])
+                || !isset($config['github_account_username'])
+                || !isset($config['memcached_host'])
+                || !isset($config['memcached_port'])) {
             throw new \RuntimeException('Incorrect configuration');
         }
     }
