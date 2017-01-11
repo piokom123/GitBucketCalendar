@@ -59,6 +59,7 @@ class GitBucketCalendar {
         $count = 0;
         $previousKey = null;
         $maxValue = 0;
+        $isFirstDay = true;
 
         foreach ($contributions as $loopKey => $loopItem) {
             if ($previousKey === null) {
@@ -67,12 +68,14 @@ class GitBucketCalendar {
 
             if (!$latestStreakEnded) {
                 if ($loopItem === 0) {
-                    $latestStreakEnded = true;
+                    if (!$isFirstDay) {
+                        $latestStreakEnded = true;
 
-                    $latestStreakStart = $previousKey;
+                        $latestStreakStart = $previousKey;
 
-                    if (empty($latestStreakEnd)) {
-                        $latestStreakEnd = $loopKey;
+                        if (empty($latestStreakEnd)) {
+                            $latestStreakEnd = $loopKey;
+                        }
                     }
                 } else {
                     if ($latestStreak === 0) {
@@ -92,6 +95,7 @@ class GitBucketCalendar {
                 }
 
                 $currentStreak = 0;
+                $currentStreakEnd = '';
             } else {
                 if ($currentStreak === 0) {
                     $currentStreakEnd = $loopKey;
@@ -106,6 +110,13 @@ class GitBucketCalendar {
             if ($loopItem > $maxValue) {
                 $maxValue = $loopItem;
             }
+
+            $isFirstDay = false;
+        }
+
+        if ($latestStreak === 0) {
+            $latestStreakStart = '';
+            $latestStreakEnd = '';
         }
 
         if ($currentStreak > $longestStreak) {

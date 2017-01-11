@@ -149,6 +149,6 @@
     <div class="table-column table-column-notfirst">
         <span class="text">Current streak</span>
         <span class="number"><?php echo $contributions['latestStreak'] . ' ' . ($contributions['latestStreak'] === 1 ? ' day' : ' days'); ?></span>
-        <span class="text"><?php echo $contributions['latestStreakStart']; ?> - <?php echo $contributions['latestStreakEnd']; ?></span>
+        <span class="text"><?php echo $contributions['latestStreak'] > 0 ? ($contributions['latestStreakStart'] . ' - ' . $contributions['latestStreakEnd']) : ''; ?></span>
     </div>
 </div>

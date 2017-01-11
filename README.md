@@ -1,4 +1,4 @@
-GitBucket Calendar
+GitBucket Calendar [![Latest Stable Version](https://poser.pugx.org/hws/gitbucketcalendar/v/stable)](https://packagist.org/packages/hws/gitbucketcalendar) [![Total Downloads](https://poser.pugx.org/hws/gitbucketcalendar/downloads)](https://packagist.org/packages/hws/gitbucketcalendar) [![License](https://poser.pugx.org/hws/gitbucketcalendar/license)](https://packagist.org/packages/hws/gitbucketcalendar)
 ========================
 
 Library that allows you to display GitHub and BitBucket contributions in GitHub-like calendar widget.
@@ -12,7 +12,7 @@ Code is available in Packagist repository so installation is as simple as includ
 
 ```
 "require": {
-    "hws/gitbucketcalendar": "1.*"
+    "hws/gitbucketcalendar": "1.2.*"
 }
 ```
 
